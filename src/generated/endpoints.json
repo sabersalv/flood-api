@@ -1,0 +1,157 @@
+{
+  "auth": {
+    "authenticate": [
+      "POST /auth/authenticate"
+    ],
+    "register": [
+      "POST /auth/register"
+    ],
+    "verify": [
+      "GET /auth/verify"
+    ],
+    "logout": [
+      "GET /auth/logout"
+    ],
+    "listUsers": [
+      "GET /auth/users"
+    ],
+    "deleteUser": [
+      "DELETE /auth/users/{username}"
+    ],
+    "updateUser": [
+      "PATCH /auth/users/{username}"
+    ]
+  },
+  "client": {
+    "connectionTest": [
+      "GET /client/connection-test"
+    ],
+    "getSettings": [
+      "GET /client/settings"
+    ],
+    "updateSettings": [
+      "PATCH /client/settings"
+    ]
+  },
+  "feedMonitor": {
+    "list": [
+      "GET /feed-monitor"
+    ],
+    "delete": [
+      "DELETE /feed-monitor/{id}"
+    ],
+    "listFeeds": [
+      "GET /feed-monitor/feeds/{id}"
+    ],
+    "updateFeed": [
+      "PATCH /feed-monitor/feeds/{id}"
+    ],
+    "addFeed": [
+      "PUT /feed-monitor/feeds"
+    ],
+    "listFeedItems": [
+      "GET /feed-monitor/feeds/{id}/items"
+    ],
+    "listRules": [
+      "GET /feed-monitor/rules"
+    ],
+    "addRule": [
+      "PUT /feed-monitor/rules"
+    ]
+  },
+  "listDirectory": [
+    "GET /directory-list"
+  ],
+  "getHistory": [
+    "GET /history"
+  ],
+  "listNotifications": [
+    "GET /notifications"
+  ],
+  "deleteNotifications": [
+    "DELETE /notifications"
+  ],
+  "listSettings": [
+    "GET /settings"
+  ],
+  "updateSettings": [
+    "PATCH /settings"
+  ],
+  "getSetting": [
+    "GET /settings/{property}"
+  ],
+  "torrents": {
+    "list": [
+      "GET /torrents"
+    ],
+    "addUrls": [
+      "POST /torrents/add-urls"
+    ],
+    "addFiles": [
+      "POST /torrents/add-files"
+    ],
+    "create": [
+      "POST /torrents/create"
+    ],
+    "start": [
+      "POST /torrents/start"
+    ],
+    "stop": [
+      "POST /torrents/stop"
+    ],
+    "checkHash": [
+      "POST /torrents/check-hash"
+    ],
+    "move": [
+      "POST /torrents/move"
+    ],
+    "delete": [
+      "POST /torrents/delete"
+    ],
+    "reannounce": [
+      "POST /torrents/reannounce"
+    ],
+    "updateInitialSeeding": [
+      "PATCH /torrents/initial-seeding"
+    ],
+    "updatePriority": [
+      "PATCH /torrents/priority"
+    ],
+    "updateSequential": [
+      "PATCH /torrents/sequential"
+    ],
+    "updateTags": [
+      "PATCH /torrents/tags"
+    ],
+    "updateTrackers": [
+      "PATCH /torrents/trackers"
+    ],
+    "getMetainfo": [
+      "GET /torrents/{hashes}/metainfo"
+    ],
+    "listContents": [
+      "GET /torrents/{hash}/contents"
+    ],
+    "updateContents": [
+      "PATCH /torrents/{hash}/contents"
+    ],
+    "getContentsToken": [
+      "GET /torrents/{hash}/contents/{indices}/token"
+    ],
+    "getDetails": [
+      "GET /torrents/{hash}/details"
+    ],
+    "getMediaInfo": [
+      "GET /torrents/{hash}/mediainfo"
+    ],
+    "listPeers": [
+      "GET /torrents/{hash}/peers"
+    ],
+    "listTrackers": [
+      "GET /torrents/{hash}/trackers"
+    ],
+    "getContentsData": [
+      "GET /torrents/{hash}/contents/{indices}/data"
+    ]
+  }
+}

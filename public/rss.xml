@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+   <script />
+   <channel>
+      <title>title</title>
+      <link>https://flood-api.netlify.app/rss.xml</link>
+      <description>description</description>
+      <item>
+         <guid isPermaLink="false">guid1</guid>
+         <link>https://flood-api.netlify.app/item1</link>
+         <title>title1</title>
+         <description>description1</description>
+         <torrent>
+            <link>https://flood-api.netlify.app/item1</link>
+            <contentLength>3221225472</contentLength>
+            <pubDate>2021-04-08T01:25:00</pubDate>
+         </torrent>
+         <enclosure type="application/x-bittorrent" length="3221225472" url="https://flood-api.netlify.app/item1.torrent" />
+      </item>
+      <item>
+         <guid isPermaLink="false">guid2</guid>
+         <link>https://flood-api.netlify.app/item2</link>
+         <title>title2</title>
+         <description>description2</description>
+         <torrent>
+            <link>https://flood-api.netlify.app/item2</link>
+            <contentLength>322122547</contentLength>
+            <pubDate>2021-04-07T01:25:00</pubDate>
+         </torrent>
+         <enclosure type="application/x-bittorrent" length="322122547" url="https://flood-api.netlify.app/item2.torrent" />
+      </item>
+   </channel>
+</rss>
+

@@ -1,0 +1,81 @@
+{
+  "name": "flood-api",
+  "version": "1.0.3",
+  "description": "API wrapper for jesec/flood",
+  "homepage": "https://github.com/sabersalv/flood-api",
+  "author": "Saber",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublishOnly": "yarn build",
+    "build": "yarn endpoints:build && yarn babel:build",
+    "babel:build": "babel src --out-dir dist --copy-files --no-copy-ignored --delete-dir-on-start --ignore \"**/__tests__\"",
+    "endpoints:build": "node scripts/endpoints-gen openapi.yaml src/generated/endpoints.json",
+    "docs:dev": "redoc-cli serve openapi.yaml --watch --options.theme.logo.maxWidth=100px --options.hideDownloadButton --options.payloadSampleIdx=99",
+    "docs:build": "redoc-cli bundle openapi.yaml --options.theme.logo.maxWidth=100px --options.hideDownloadButton --options.payloadSampleIdx=99 && mkdir docs-build && mv redoc-static.html docs-build/index.html && cp public/* docs-build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "standard",
+      "prettier"
+    ],
+    "plugins": [
+      "jest"
+    ],
+    "env": {
+      "jest/globals": true
+    }
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "prettier --write"
+    ]
+  },
+  "jest": {
+    "transform": {
+      "\\.js$": "babel-jest"
+    }
+  },
+  "dependencies": {
+    "@octokit/endpoint": "^6.0.11",
+    "eventsource": "^1.1.0",
+    "is-plain-object": "^5.0.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.13.10",
+    "@babel/core": "^7.13.13",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/preset-env": "^7.13.12",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-config-standard": "16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.3.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "husky": "^6.0.0",
+    "jest": "^26.6.3",
+    "jest-transforms": "^1.0.0",
+    "lint-staged": "^10.5.4",
+    "lodash": "^4.17.21",
+    "netlify-cli": "^3.16.2",
+    "prettier": "^2.2.1",
+    "redoc-cli": "^0.11.2",
+    "swagger-parser": "^10.0.2",
+    "widdershins": "^4.0.1"
+  }
+}

@@ -1,0 +1,2289 @@
+openapi: 3.0.0
+info:
+  title: Flood API
+  version: 1.0.2
+  contact:
+    url: https://github.com/sabersalv/flood-api
+  x-logo:
+    url: https://flood.js.org/assets/img/logo.png
+  description: |
+    API wrapper for jesec/flood
+
+    # Introduction
+    Easy to use
+
+    # Authentication
+    Use cookie and jwt
+
+servers:
+  - url: 'http://localhost:3000/api'
+paths:
+  /auth/authenticate:
+    post:
+      summary: Authenticates a user
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthAuthenticationResponse'
+              examples: {}
+        '401':
+          description: incorrect username or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: request validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: auth.authenticate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthAuthenticationOptions'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.authenticate({
+              username: 'user',
+              password: 'pass'
+            })
+        - lang: shell
+          source: |-
+            curl -i 'http://localhost:3000/api/auth/authenticate' \
+              -d '{ "username": "user", "password": "pass" }' 
+  /auth/register:
+    post:
+      summary: Registers a user
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      username:
+                        type: string
+                  - $ref: '#/components/schemas/AuthAuthenticationResponse'
+        '403':
+          description: user is not authorized to create user
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: registration is disabled
+          content:
+            application/json:
+              schema:
+                type: string
+        '422':
+          description: 'request validation error '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      operationId: auth.register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegistrationOptions'
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: cookie
+          description: whether to Set-Cookie if succeeded
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.register(..)
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/auth/register' \
+              -d '{ .. }' 
+  /auth/verify:
+    get:
+      summary: Verifies the session
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthVerificationResponse'
+        '401':
+          description: not authenticated or token expired
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: 'authenticated succeeded but user is unattached '
+          content:
+            application/json:
+              schema:
+                type: string
+      operationId: auth.verify
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.verify()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/auth/verify'
+  /auth/logout:
+    get:
+      summary: Clear the session
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: OK
+      operationId: auth.logout
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.logout()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/auth/logout'
+  /auth/users:
+    get:
+      summary: Lists all users
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    level:
+                      type: number
+        '401':
+          description: ' not authenticated or token expired'
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: user is not authorized to list users
+          content:
+            application/json:
+              schema:
+                type: string
+      operationId: auth.listUsers
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.listUsers()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/auth/users'
+  '/auth/users/{username}':
+    parameters:
+      - schema:
+          type: string
+        name: username
+        in: path
+        required: true
+    delete:
+      summary: Deletes a user
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+        '401':
+          description: not authenticated or token expired
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: user is not authorized to delete user
+          content:
+            application/json:
+              schema:
+                type: string
+      operationId: auth.deleteUser
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.deleteUser({ username: 'user' })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/auth/users/{username}' \
+              -X DELETE
+    patch:
+      summary: Updates a user
+      operationId: auth.updateUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties: {}
+        '401':
+          description: not authenticated or token expired
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: user is not authorized to update user
+          content:
+            application/json:
+              schema:
+                type: string
+        '422':
+          description: request validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegistrationOptions'
+      tags:
+        - Auth
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.auth.updateUser({
+              username: 'user'
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/auth/users/{username}' \
+              -d '{ "username": "user" }' 
+  /client/connection-test:
+    get:
+      summary: Tests connection to the torrent client
+      tags:
+        - Client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isConnected:
+                    type: boolean
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isConnected:
+                    type: boolean
+      operationId: client.connectionTest
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.client.connectionTest()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/client/connection-test'
+  /client/settings:
+    get:
+      summary: Gets settings of torrent client 
+      tags:
+        - Client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientSettings'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: client.getSettings
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.client.getSettings()
+        - lang: shell
+          source: |-
+            curl http://localhost:3000/api/client/settings
+    patch:
+      summary: Updates settings of torrent client
+      tags:
+        - Client
+      operationId: client.updateSettings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties: {}
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientSettings'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.client.updateSettings({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/client/settings' \
+              -X PATCH \
+              -d '{ .. }'
+  /feed-monitor:
+    get:
+      summary: Lists all feeds and rules
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feeds:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feed'
+                  rules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rule'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.list
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.list()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor'
+  '/feed-monitor/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    delete:
+      summary: Deletes a feed or rule
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties: {}
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.delete
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.delete({
+              id: '1',
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/{id}' \
+              -X DELETE
+  '/feed-monitor/feeds/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Lists all feeds
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Feed'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.listFeeds
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.listFeeds({
+              id: '1,2'
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/feeds/{id}'
+    patch:
+      summary: Updates a feed
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties: {}
+      operationId: feedMonitor.updateFeed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feed'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.updateFeed({
+              id: '1',
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/feeds/{id}' \
+              -d '{ "id": "1", .. }'               
+  /feed-monitor/feeds:
+    put:
+      summary: Adds a feed
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feed'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.addFeed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feed'
+          application/xml:
+            schema:
+              type: 'object'
+              properties: {}
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.addFeed({
+              data: {
+                label,
+                url,
+                interval
+              }
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/feeds' \
+              -X PUT \
+              -d '{ .. }' 
+  '/feed-monitor/feeds/{id}/items':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Lists all feed items
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.listFeedItems
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: search
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.listFeedItems({
+              id: '1'
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/feeds/{id}/items'
+  /feed-monitor/rules:
+    get:
+      summary: Lists all rules
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rule'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.listRules
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.listRules()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/rules'
+    put:
+      summary: Adds a rule
+      tags:
+        - Feeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: feedMonitor.addRule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rule'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.feedMonitor.addRule({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/feed-monitor/rules' \
+              -X PUT \
+              -d '{ .. }' 
+  /directory-list:
+    get:
+      summary: Lists a directory
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Unprocessable Entity (WebDAV)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: listDirectory
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.listDirectory()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/directory-list'
+  /history:
+    get:
+      summary: Lists transfer history
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: getHistory
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - FIVE_MINUTE
+              - THIRTY_MINUTE
+              - HOUR
+              - DAY
+              - WEEK
+              - MONTH
+              - YEAR
+          in: query
+          name: snapshot
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.listHistory()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/history'
+  /notifications:
+    get:
+      summary: Lists all notifications
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: object
+                  count:
+                    type: object
+      operationId: listNotifications
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+        - schema:
+            type: number
+          in: query
+          name: limit
+          required: true
+        - schema:
+            type: number
+          in: query
+          name: start
+          required: true
+        - schema:
+            type: boolean
+          in: query
+          name: allNotifications
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.listNotifications()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/notifications'
+    delete:
+      summary: Deletes notifications
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: deleteNotifications
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.deleteNotifications()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/notifications' \
+              -X DELETE
+  /settings:
+    get:
+      summary: Lists all Flood settings
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloodSettings'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: listSettings
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.listSettings()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/settings'
+    patch:
+      summary: Updates Flood settings
+      tags:
+        - Flood
+      operationId: updateSettings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloodSettings'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FloodSettings'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.updateSettings({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/settings' \
+              -X PATCH \
+              -d '{ .. }'
+  '/settings/{property}':
+    parameters:
+      - schema:
+          type: string
+        name: property
+        in: path
+        required: true
+    get:
+      summary: Gets a Flood setting
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloodSettings'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: getSetting
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.getSetting({
+              property: '..'
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/settings/{property}'
+  /torrents:
+    get:
+      summary: Lists all torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TorrentListSummary'
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.list
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.list()
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents'
+  /torrents/add-urls:
+    post:
+      summary: Adds torrents by URLs
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: all torrents added
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '202':
+          description: requests sent to torrent client
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '207':
+          description: 'some succeed, some failed'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '403':
+          description: '403'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.addUrls
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/addTorrentByURLSchema'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.addUrls({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/add-urls' \
+              -d '{ .. }'
+  /torrents/add-files:
+    post:
+      summary: Adds torrents by files
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: all torrents added
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '202':
+          description: requests sent to torrent client
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '207':
+          description: 'some succeed, some failed'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '403':
+          description: illegal destination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.addFiles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTorrentByFileOptions'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.addFiles({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/add-files' \
+              -d '{ .. }'
+  /torrents/create:
+    post:
+      summary: Creates a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+          content:
+            application/x-bittorrent:
+              schema:
+                type: string
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTorrentOptions'
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.create({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/create' \
+              -d '{ .. }'
+  /torrents/start:
+    post:
+      summary: Starts torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.start
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.start({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/start' \
+              -d '{ .. }' 
+  /torrents/stop:
+    post:
+      summary: Stops torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.stop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.stop({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/stop' \
+              -d '{ .. }'
+  /torrents/check-hash:
+    post:
+      summary: Hash checks torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: ' success response'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.checkHash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.checkHash({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/check-hash' \
+              -d '{ .. }' 
+  /torrents/move:
+    post:
+      summary: Moves torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '403':
+          description: access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.move
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: array
+                  items:
+                    type: string
+                destination:
+                  type: string
+                moveFiles:
+                  type: boolean
+                isBasePath:
+                  type: boolean
+                isCheckHash:
+                  type: boolean
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.move({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/move' \
+              -d '{ .. }' 
+  /torrents/delete:
+    post:
+      summary: Deletes torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+                deleteData:
+                  type: boolean
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.delete({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/delete' \
+              -d '{ .. }' 
+  /torrents/reannounce:
+    post:
+      summary: Reannounces torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.reannounce
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+          application/xml:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.reannounce({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/reannounce' \
+              -d '{ .. }' 
+  /torrents/initial-seeding:
+    patch:
+      summary: Updates initial seeding mode of torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: 'failure response '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.updateInitialSeeding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+                isInitialSeeding:
+                  type: boolean
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.updateInitialSeeding({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/initial-seeding' \
+              -X PATCH \
+              -d '{ .. }' 
+  /torrents/priority:
+    patch:
+      summary: Updates priority of torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: failure response
+      operationId: torrents.updatePriority
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+                priority:
+                  type: number
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                    - 3
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.updatePriority({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/priority' \
+              -X PATCH \
+              -d '{ .. }'
+  /torrents/sequential:
+    patch:
+      summary: Updates sequential mode of torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: 'failure response '
+      operationId: torrents.updateSequential
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+                isSequential:
+                  type: boolean
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.updateSequential({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/sequential' \
+              -X PATCH \
+              -d '{ .. }' 
+  /torrents/tags:
+    patch:
+      summary: Updates tags of torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.updateTags
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.updateTags({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/tags' \
+              -X PATCH \
+              -d '{ .. }' 
+  /torrents/trackers:
+    patch:
+      summary: Updates trackers of torrents
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.updateTrackers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hashes:
+                  type: string
+                trackers:
+                  type: array
+                  items:
+                    type: string
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.updateTrackers({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/trackers' \
+              -X PATCH \
+              -d '{ .. }' 
+  '/torrents/{hashes}/metainfo':
+    parameters:
+      - schema:
+          type: string
+        name: hashes
+        description: 'Hash of a torrent, or hashes of torrents (split by ,)'
+        in: path
+        required: true
+    get:
+      summary: Gets .torrent files
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: single torrent or torrents archived in .tar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '422':
+          description: hash not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: other failure responses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.getMetainfo
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.metainfo({
+              hashes: 'a,b'
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hashes}/metainfo'
+  '/torrents/{hash}/contents':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+    get:
+      summary: List contents of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TorrentContent'
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.listContents
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.listContents({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/contents' \
+              -d '{ .. }' 
+    patch:
+      summary: Updates properties of contents of a torrent
+      tags:
+        - Torrents
+      operationId: torrents.updateContents
+      responses:
+        '200':
+          description: success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                indices:
+                  type: array
+                  items:
+                    type: number
+                    enum:
+                      - 0
+                      - 1
+                      - 2
+                priority:
+                  type: number
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.updateContents({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/contents' \
+              -d '{ .. }'
+  '/torrents/{hash}/contents/{indices}/token':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: indices
+        in: path
+        required: true
+        description: "'all' or indices of selected contents separated by ','"
+    get:
+      summary: Gets retrieval token of contents of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: token
+          content:
+            text/plain:
+              schema:
+                type: object
+                properties: {}
+      operationId: torrents.getContentsToken
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.getContentsToken({
+              username: 'user',
+              password: 'pass'
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/contents/{indices}/token' \
+              -d '{ .. }' 
+  '/torrents/{hash}/details':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+    get:
+      summary: Gets details of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TorrentContent'
+                  peers:
+                    type: array
+                    items:
+                      type: object
+                  trackers:
+                    type: array
+                    items:
+                      type: object
+              examples: {}
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.getDetails
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.getDetails({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/details' \
+              -d '{ .. }' 
+  '/torrents/{hash}/mediainfo':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+    get:
+      summary: Gets mediainfo of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      operationId: torrents.getMediaInfo
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.getMediaInfo({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/mediainfo'
+  '/torrents/{hash}/peers':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+    get:
+      summary: Lists peers of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: OK
+      operationId: torrents.listPeers
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.listPeers({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/peers'
+  '/torrents/{hash}/trackers':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+    get:
+      summary: Lists trackers of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: failure response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: torrents.listTrackers
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.listTrackers({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/trackers'
+  '/torrents/{hash}/contents/{indices}/data':
+    parameters:
+      - schema:
+          type: string
+        name: hash
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: indices
+        in: path
+        required: true
+        description: "'all' or indices of selected contents separated by ','"
+    get:
+      summary: Gets downloaded data of contents of a torrent
+      tags:
+        - Torrents
+      responses:
+        '200':
+          description: 'contents archived in .tar '
+          content:
+            application/x-tar:
+              schema:
+                type: object
+                properties: {}
+      operationId: torrents.getContentsData
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            await api.torrents.getContentsData({
+              ..
+            })
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/torrents/{hash}/contents/{indices}/data'
+  /activity-stream:
+    get:
+      summary: Subscribes to activity stream
+      tags:
+        - Flood
+      responses:
+        '200':
+          description: success response
+        '500':
+          description: Internal Server Error
+      operationId: activityStream
+      description: |-
+        It uses [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)
+
+        List of Events
+        - CLIENT_CONNECTIVITY_STATUS_CHANGE
+        - TRANSFER_HISTORY_FULL_UPDATE
+        - DISK_USAGE_CHANGE
+        - TORRENT_LIST_FULL_UPDATE
+        - TAXONOMY_FULL_UPDATE
+        - TRANSFER_SUMMARY_FULL_UPDATE
+        - NOTIFICATION_COUNT_CHANGE
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - FIVE_MINUTE
+              - THIRTY_MINUTE
+              - HOUR
+              - DAY
+              - WEEK
+              - MONTH
+              - YEAR
+          in: query
+          name: historySnapshot
+      x-codeSamples:
+        - lang: javascript
+          source: |-
+            const es = api.activityStream()
+            es.addEventListener('CLIENT_CONNECTIVITY_STATUS_CHANGE', e => console.log(e.data))
+        - lang: shell
+          source: |-
+            curl 'http://localhost:3000/api/activity-stream'
+components:
+  schemas:
+    Error:
+      title: Error
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: number
+    ClientSettings:
+      title: ClientSettings
+      type: object
+      properties:
+        dht:
+          type: boolean
+        dhtPort:
+          type: number
+        directoryDefault:
+          type: string
+        networkHttpMaxOpen:
+          type: number
+        networkLocalAddress:
+          type: array
+          items:
+            type: string
+        networkMaxOpenFiles:
+          type: number
+        networkPortOpen:
+          type: boolean
+        networkPortRandom:
+          type: boolean
+        networkPortRange:
+          type: string
+        piecesHashOnCompletion:
+          type: boolean
+        piecesMemoryMax:
+          type: number
+        protocolPex:
+          type: boolean
+        throttleGlobalDownSpeed:
+          type: number
+        throttleGlobalUpSpeed:
+          type: number
+        throttleMaxPeersNormal:
+          type: number
+        throttleMaxPeersSeed:
+          type: number
+        throttleMaxDownloads:
+          type: number
+        throttleMaxDownloadsGlobal:
+          type: number
+        throttleMaxUploads:
+          type: number
+        throttleMaxUploadsGlobal:
+          type: number
+        throttleMinPeersNormal:
+          type: number
+        throttleMinPeersSeed:
+          type: number
+        trackersNumWant:
+          type: number
+    Feed:
+      title: Feed
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - feed
+        _id:
+          type: string
+        label:
+          type: string
+        url:
+          type: string
+        interval:
+          type: number
+        count:
+          type: number
+    Rule:
+      title: Rule
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - rule
+        _id:
+          type: string
+        label:
+          type: string
+        feedIDs:
+          type: array
+          items:
+            type: string
+        field:
+          type: string
+        match:
+          type: string
+        exclude:
+          type: string
+        destination:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        startOnLoad:
+          type: boolean
+        isBasePath:
+          type: boolean
+        count:
+          type: number
+    Item:
+      title: Item
+      type: object
+      properties:
+        title:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+    FloodSettings:
+      title: FloodSettings
+      type: object
+      properties:
+        language:
+          type: string
+        sortTorrents:
+          type: object
+          properties:
+            direction:
+              type: string
+              enum:
+                - desc
+                - asc
+            property:
+              type: object
+        torrentListColumns:
+          type: array
+          items:
+            type: object
+        torrentListColumnWidths:
+          type: object
+        torrentContextMenuActions:
+          type: array
+          items:
+            type: object
+        torrentListViewSize:
+          type: string
+          enum:
+            - condensed
+            - expanded
+        speedLimits:
+          type: object
+          properties:
+            download:
+              type: array
+              items:
+                type: number
+            upload:
+              type: array
+              items:
+                type: number
+        mountPoints:
+          type: array
+          items:
+            type: string
+        deleteTorrentData:
+          type: boolean
+        startTorrentsOnLoad:
+          type: boolean
+        torrentDestinations:
+          type: array
+          items:
+            type: string
+        UITagSelectorMode:
+          type: string
+          enum:
+            - single
+            - multi
+        UITorrentsAddTab:
+          type: string
+          enum:
+            - by-url
+            - by-file
+            - by-creation
+    AuthAuthenticationOptions:
+      title: AuthAuthenticationOptions
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    AuthAuthenticationResponse:
+      title: AuthAuthenticationResponse
+      type: object
+      properties:
+        success:
+          type: boolean
+        username:
+          type: string
+        level:
+          type: number
+          enum:
+            - 5
+            - 10
+    AuthRegistrationOptions:
+      title: AuthRegistrationOptions
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        client:
+          type: object
+        level:
+          type: number
+    AuthVerificationResponse:
+      title: AuthVerificationResponse
+      type: object
+      properties:
+        initialUser:
+          type: boolean
+        username:
+          type: string
+        level:
+          type: number
+    TorrentListSummary:
+      title: TorrentListSummary
+      type: object
+      properties:
+        id:
+          type: number
+        torrents:
+          $ref: '#/components/schemas/TorrentList'
+    TorrentList:
+      title: TorrentList
+      type: object
+      additionalProperties:
+        x-additionalPropertiesName: hash
+        $ref: '#/components/schemas/TorrentProperties'
+    TorrentProperties:
+      title: TorrentProperties
+      type: object
+      properties:
+        bytesDone:
+          type: number
+        dateAdded:
+          type: number
+        dateCreated:
+          type: number
+        directory:
+          type: string
+        downRate:
+          type: number
+        downTotal:
+          type: number
+        eta:
+          type: number
+        hash:
+          type: string
+        isPrivate:
+          type: boolean
+        isInitialSeeding:
+          type: boolean
+        isSequential:
+          type: boolean
+        message:
+          type: string
+        name:
+          type: string
+        peersConnected:
+          type: number
+        peersTotal:
+          type: number
+        percentComplete:
+          type: number
+        priority:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+        ratio:
+          type: number
+        seedsConnected:
+          type: number
+        seedsTotal:
+          type: number
+        sizeBytes:
+          type: number
+        status:
+          type: array
+          items:
+            type: string
+            enum:
+              - checking
+              - seeding
+              - complete
+              - downloading
+              - stopped
+              - error
+              - inactive
+              - active
+        tags:
+          type: array
+          items:
+            type: string
+        trackerURIs:
+          type: array
+          items:
+            type: string
+        upRate:
+          type: number
+        upTotal:
+          type: number
+    addTorrentByURLSchema:
+      title: addTorrentByURLSchema
+      type: object
+      properties:
+        urls:
+          type: array
+          items:
+            type: string
+        cookies:
+          type: array
+          items:
+            type: string
+        destination:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        isBasePath:
+          type: boolean
+        isCompleted:
+          type: boolean
+        isSequential:
+          type: boolean
+        isInitialSeeding:
+          type: boolean
+        start:
+          type: boolean
+    AddTorrentByFileOptions:
+      title: AddTorrentByFileOptions
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            type: string
+        destination:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        isBasePath:
+          type: boolean
+        isCompleted:
+          type: boolean
+        isSequential:
+          type: boolean
+        isInitialSeeding:
+          type: boolean
+        start:
+          type: boolean
+    CreateTorrentOptions:
+      title: CreateTorrentOptions
+      type: object
+      properties:
+        name:
+          type: string
+        sourcePath:
+          type: string
+        trackers:
+          type: array
+          items:
+            type: string
+        comment:
+          type: string
+        infoSource:
+          type: string
+        isPrivate:
+          type: boolean
+        isInitialSeeding:
+          type: boolean
+        start:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+    TorrentContent:
+      title: TorrentContent
+      type: object
+      properties:
+        index:
+          type: number
+        path:
+          type: string
+        filename:
+          type: string
+        percentComplete:
+          type: number
+        priority:
+          type: number
+          enum:
+            - 0
+            - 1
+            - 2
+        sizeBytes:
+          type: number
+tags:
+  - name: Auth
+  - name: Client
+  - name: Feeds
+  - name: Flood
+  - name: Torrents
