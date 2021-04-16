@@ -3,18 +3,29 @@ info:
   title: Flood API
   version: 1.0.2
   contact:
-    url: https://github.com/sabersalv/flood-api
+    url: 'https://github.com/sabersalv/flood-api'
   x-logo:
-    url: https://flood.js.org/assets/img/logo.png
-  description: |
-    API wrapper for jesec/flood
+    url: 'https://flood.js.org/assets/img/logo.png'
+  description: |-
+    API wrapper, JavaScript SDK for [jesec/flood](https://github.com/jesec/flood)
 
-    # Introduction
-    Easy to use
+    # Getting Started
 
-    # Authentication
-    Use cookie and jwt
+    ```shell
+    yarn add flood-api
+    ```
 
+    ```js
+    import Api from 'flood-api'
+
+    const api = new Api({
+      baseUrl: 'http://localhost:3000/api',
+      username: 'user',
+      password: 'pass',
+    })
+    await api.client.connectionTest()
+    //-> { isConnected: true }
+    ```
 servers:
   - url: 'http://localhost:3000/api'
 paths:
@@ -110,8 +121,7 @@ paths:
           description: whether to Set-Cookie if succeeded
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.auth.register(..)
+          source: await api.auth.register(..)
         - lang: shell
           source: |-
             curl 'http://localhost:3000/api/auth/register' \
@@ -143,11 +153,9 @@ paths:
       operationId: auth.verify
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.auth.verify()
+          source: await api.auth.verify()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/auth/verify'
+          source: 'curl ''http://localhost:3000/api/auth/verify'''
   /auth/logout:
     get:
       summary: Clear the session
@@ -159,11 +167,9 @@ paths:
       operationId: auth.logout
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.auth.logout()
+          source: await api.auth.logout()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/auth/logout'
+          source: 'curl ''http://localhost:3000/api/auth/logout'''
   /auth/users:
     get:
       summary: Lists all users
@@ -198,11 +204,9 @@ paths:
       operationId: auth.listUsers
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.auth.listUsers()
+          source: await api.auth.listUsers()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/auth/users'
+          source: 'curl ''http://localhost:3000/api/auth/users'''
   '/auth/users/{username}':
     parameters:
       - schema:
@@ -239,8 +243,7 @@ paths:
       operationId: auth.deleteUser
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.auth.deleteUser({ username: 'user' })
+          source: 'await api.auth.deleteUser({ username: ''user'' })'
         - lang: shell
           source: |-
             curl 'http://localhost:3000/api/auth/users/{username}' \
@@ -254,7 +257,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'object'
+                type: object
                 properties: {}
         '401':
           description: not authenticated or token expired
@@ -318,14 +321,12 @@ paths:
       operationId: client.connectionTest
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.client.connectionTest()
+          source: await api.client.connectionTest()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/client/connection-test'
+          source: 'curl ''http://localhost:3000/api/client/connection-test'''
   /client/settings:
     get:
-      summary: Gets settings of torrent client 
+      summary: Gets settings of torrent client
       tags:
         - Client
       responses:
@@ -344,11 +345,9 @@ paths:
       operationId: client.getSettings
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.client.getSettings()
+          source: await api.client.getSettings()
         - lang: shell
-          source: |-
-            curl http://localhost:3000/api/client/settings
+          source: 'curl http://localhost:3000/api/client/settings'
     patch:
       summary: Updates settings of torrent client
       tags:
@@ -360,7 +359,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'object'
+                type: object
                 properties: {}
         '500':
           description: failure response
@@ -414,11 +413,9 @@ paths:
       operationId: feedMonitor.list
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.feedMonitor.list()
+          source: await api.feedMonitor.list()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/feed-monitor'
+          source: 'curl ''http://localhost:3000/api/feed-monitor'''
   '/feed-monitor/{id}':
     parameters:
       - schema:
@@ -436,7 +433,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'object'
+                type: object
                 properties: {}
         '500':
           description: failure response
@@ -489,8 +486,7 @@ paths:
               id: '1,2'
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/feed-monitor/feeds/{id}'
+          source: 'curl ''http://localhost:3000/api/feed-monitor/feeds/{id}'''
     patch:
       summary: Updates a feed
       tags:
@@ -501,7 +497,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'object'
+                type: object
                 properties: {}
       operationId: feedMonitor.updateFeed
       requestBody:
@@ -546,7 +542,7 @@ paths:
               $ref: '#/components/schemas/Feed'
           application/xml:
             schema:
-              type: 'object'
+              type: object
               properties: {}
       x-codeSamples:
         - lang: javascript
@@ -602,8 +598,7 @@ paths:
               id: '1'
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/feed-monitor/feeds/{id}/items'
+          source: 'curl ''http://localhost:3000/api/feed-monitor/feeds/{id}/items'''
   /feed-monitor/rules:
     get:
       summary: Lists all rules
@@ -627,11 +622,9 @@ paths:
       operationId: feedMonitor.listRules
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.feedMonitor.listRules()
+          source: await api.feedMonitor.listRules()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/feed-monitor/rules'
+          source: 'curl ''http://localhost:3000/api/feed-monitor/rules'''
     put:
       summary: Adds a rule
       tags:
@@ -706,11 +699,9 @@ paths:
       operationId: listDirectory
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.listDirectory()
+          source: await api.listDirectory()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/directory-list'
+          source: 'curl ''http://localhost:3000/api/directory-list'''
   /history:
     get:
       summary: Lists transfer history
@@ -746,11 +737,9 @@ paths:
           name: snapshot
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.listHistory()
+          source: await api.listHistory()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/history'
+          source: 'curl ''http://localhost:3000/api/history'''
   /notifications:
     get:
       summary: Lists all notifications
@@ -791,11 +780,9 @@ paths:
           name: allNotifications
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.listNotifications()
+          source: await api.listNotifications()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/notifications'
+          source: 'curl ''http://localhost:3000/api/notifications'''
     delete:
       summary: Deletes notifications
       tags:
@@ -812,8 +799,7 @@ paths:
       operationId: deleteNotifications
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.deleteNotifications()
+          source: await api.deleteNotifications()
         - lang: shell
           source: |-
             curl 'http://localhost:3000/api/notifications' \
@@ -839,11 +825,9 @@ paths:
       operationId: listSettings
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.listSettings()
+          source: await api.listSettings()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/settings'
+          source: 'curl ''http://localhost:3000/api/settings'''
     patch:
       summary: Updates Flood settings
       tags:
@@ -910,8 +894,7 @@ paths:
               property: '..'
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/settings/{property}'
+          source: 'curl ''http://localhost:3000/api/settings/{property}'''
   /torrents:
     get:
       summary: Lists all torrents
@@ -933,11 +916,9 @@ paths:
       operationId: torrents.list
       x-codeSamples:
         - lang: javascript
-          source: |-
-            await api.torrents.list()
+          source: await api.torrents.list()
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/torrents'
+          source: 'curl ''http://localhost:3000/api/torrents'''
   /torrents/add-urls:
     post:
       summary: Adds torrents by URLs
@@ -1529,8 +1510,7 @@ paths:
               hashes: 'a,b'
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/torrents/{hashes}/metainfo'
+          source: 'curl ''http://localhost:3000/api/torrents/{hashes}/metainfo'''
   '/torrents/{hash}/contents':
     parameters:
       - schema:
@@ -1623,7 +1603,7 @@ paths:
         name: indices
         in: path
         required: true
-        description: "'all' or indices of selected contents separated by ','"
+        description: '''all'' or indices of selected contents separated by '','''
     get:
       summary: Gets retrieval token of contents of a torrent
       tags:
@@ -1724,8 +1704,7 @@ paths:
               ..
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/torrents/{hash}/mediainfo'
+          source: 'curl ''http://localhost:3000/api/torrents/{hash}/mediainfo'''
   '/torrents/{hash}/peers':
     parameters:
       - schema:
@@ -1748,8 +1727,7 @@ paths:
               ..
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/torrents/{hash}/peers'
+          source: 'curl ''http://localhost:3000/api/torrents/{hash}/peers'''
   '/torrents/{hash}/trackers':
     parameters:
       - schema:
@@ -1778,8 +1756,7 @@ paths:
               ..
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/torrents/{hash}/trackers'
+          source: 'curl ''http://localhost:3000/api/torrents/{hash}/trackers'''
   '/torrents/{hash}/contents/{indices}/data':
     parameters:
       - schema:
@@ -1792,7 +1769,7 @@ paths:
         name: indices
         in: path
         required: true
-        description: "'all' or indices of selected contents separated by ','"
+        description: '''all'' or indices of selected contents separated by '','''
     get:
       summary: Gets downloaded data of contents of a torrent
       tags:
@@ -1813,8 +1790,7 @@ paths:
               ..
             })
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/torrents/{hash}/contents/{indices}/data'
+          source: 'curl ''http://localhost:3000/api/torrents/{hash}/contents/{indices}/data'''
   /activity-stream:
     get:
       summary: Subscribes to activity stream
@@ -1856,8 +1832,7 @@ paths:
             const es = api.activityStream()
             es.addEventListener('CLIENT_CONNECTIVITY_STATUS_CHANGE', e => console.log(e.data))
         - lang: shell
-          source: |-
-            curl 'http://localhost:3000/api/activity-stream'
+          source: 'curl ''http://localhost:3000/api/activity-stream'''
 components:
   schemas:
     Error:
