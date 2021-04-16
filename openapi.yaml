@@ -23,6 +23,7 @@ info:
       username: 'user',
       password: 'pass',
     })
+
     await api.client.connectionTest()
     //-> { isConnected: true }
     ```
