@@ -1507,7 +1507,7 @@ paths:
       x-codeSamples:
         - lang: javascript
           source: |-
-            await api.torrents.metainfo({
+            await api.torrents.getMetainfo({
               hashes: 'a,b'
             })
         - lang: shell

@@ -153,5 +153,8 @@
     "getContentsData": [
       "GET /torrents/{hash}/contents/{indices}/data"
     ]
-  }
+  },
+  "activityStream": [
+    "GET /activity-stream"
+  ]
 }
