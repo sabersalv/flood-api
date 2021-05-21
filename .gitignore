@@ -1,6 +1,7 @@
 node_modules
 dist
 docs-build
+.npmrc
 
 # Local Netlify folder
 .netlify
