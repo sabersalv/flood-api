@@ -27,7 +27,8 @@ export default async function middleware(request, options, api) {
 
   const { status, data } = response
   if (status >= 400) {
-    const err = new Error(data.message)
+    // 429, text response
+    const err = new Error(data.message || data)
     Object.assign(err, {
       url: response.url,
       status,
