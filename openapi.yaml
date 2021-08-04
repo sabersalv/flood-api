@@ -924,6 +924,7 @@ paths:
     post:
       summary: Adds torrents by URLs
       description: |-
+        returns [hash]
         **Errors**
         - jesec/rtorrent
           - 500: `{ code: -32602, message: "Could not create download: Info hash already used by another torrent." }`
@@ -986,7 +987,6 @@ paths:
     post:
       summary: Adds torrents by files
       description: |-
-        **Errors**
         - see Adds torrents by URLs
       tags:
         - Torrents
