@@ -2185,6 +2185,7 @@ components:
           type: number
         percentComplete:
           type: number
+          description: 0-100
         priority:
           type: number
           enum:
@@ -2315,6 +2316,7 @@ components:
           type: string
         percentComplete:
           type: number
+          description: 0-100
         priority:
           type: number
           enum:
