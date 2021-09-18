@@ -1636,18 +1636,14 @@ paths:
         '200':
           description: token
           content:
-            text/plain:
+            text/html:
               schema:
-                type: object
-                properties: {}
+                type: string
       operationId: torrents.getContentsToken
       x-codeSamples:
         - lang: javascript
           source: |-
-            await api.torrents.getContentsToken({
-              username: 'user',
-              password: 'pass'
-            })
+            const token = await api.torrents.getContentsToken({ hash, indices: '0,1' })
         - lang: shell
           source: |-
             curl 'http://localhost:3000/api/torrents/{hash}/contents/{indices}/token' \
@@ -1794,27 +1790,51 @@ paths:
         in: path
         required: true
         description: '''all'' or indices of selected contents separated by '','''
+      - schema:
+          type: string
+        name: token
+        in: query
+        required: false
+        description: '''Allows unauthenticated access if a valid content token is found in the query.'''
     get:
       summary: Gets downloaded data of contents of a torrent
+      description: |-
+        Indices must be exact same as the ones in getContentsToken, otherswise it will return unauthorized error. 
+
+        Returns tar if indices are more than one, otherwise returns all kinds of type based on the content.
       tags:
         - Torrents
       responses:
         '200':
-          description: 'contents archived in .tar '
+          description: 'success'
           content:
+            video/webm:
+              schema:
+                type: string
+                description: 'video stream'
+            text/x-nfo:
+              schema:
+                type: string
+                description: 'nfo file'
             application/x-tar:
               schema:
-                type: object
-                properties: {}
+                type: string
+                description: 'contents archived in .tar'
       operationId: torrents.getContentsData
       x-codeSamples:
         - lang: javascript
           source: |-
-            await api.torrents.getContentsData({
-              ..
-            })
+            const files = await api.torrents.listContents({ hash })
+            const video = files.find(file => filename.endsWith('.mkv'))
+            const indices = video.index
+            const token = await api.torrents.getContentsToken({ hash, indices })
+            mpv 'http://localhost:3000/api/torrents/{hash}/contents/{indices}/data?token={token}'
+
+            const nfo = files.find(file => filename.endsWith('.nfo'))
+            const indices = nfo.index
+            const nfoContent = await api.torrents.getContentsData({ hash, indices })
         - lang: shell
-          source: 'curl ''http://localhost:3000/api/torrents/{hash}/contents/{indices}/data'''
+          source: 'curl ''http://localhost:3000/api/torrents/{hash}/contents/{indices}/data?token={token}'''
   /activity-stream:
     get:
       summary: Subscribes to activity stream
