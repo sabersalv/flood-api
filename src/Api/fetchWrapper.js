@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import { isPlainObject } from 'is-plain-object'
 
 export default async function fetchWrapper(options) {
