@@ -1,4 +1,4 @@
-import EventSource from 'eventsource'
+import { EventSource } from 'event-source-polyfill'
 
 globalThis.EventSource = EventSource
 
