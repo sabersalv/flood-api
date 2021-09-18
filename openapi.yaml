@@ -987,7 +987,7 @@ paths:
     post:
       summary: Adds torrents by files
       description: |-
-        - see Adds torrents by URLs
+        - see [Adds torrents by URLs](#operation/torrents.addUrls)
       tags:
         - Torrents
       responses:
@@ -1544,6 +1544,22 @@ paths:
         required: true
     get:
       summary: List contents of a torrent
+      description: |-
+        Given
+        ```
+        hello/
+          s01/
+            e01.nfo
+            e01.mkv
+        ```
+
+        Returns
+        ```
+        [
+          { index: 0, path: 's01/e01.nfo', filename: 'e01.nfo' }
+          { index: 1, path: 's01/e01.mkv', filename: 'e01.mkv' }
+        ]
+        ```
       tags:
         - Torrents
       responses:
@@ -1552,7 +1568,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TorrentContent'
+                type: array
+                items:
+                  $ref: '#/components/schemas/TorrentContent'
         '500':
           description: failure response
           content:
@@ -1657,6 +1675,8 @@ paths:
         required: true
     get:
       summary: Gets details of a torrent
+      description: |-
+        contents: see [List contents of a torrent](#operation/torrents.listContents)
       tags:
         - Torrents
       responses:
