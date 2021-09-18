@@ -24,6 +24,7 @@ info:
       password: 'pass',
     })
 
+    api.options.baseUrl
     await api.client.connectionTest()
     //-> { isConnected: true }
     ```

@@ -8,7 +8,7 @@ export default class Api {
     const request = createRequest(
       fetchWrapper,
       this.constructor.middleware,
-      this,
+      this
     )
     this.request = request.defaults({
       baseUrl: options.baseUrl,
@@ -16,7 +16,7 @@ export default class Api {
     })
     Object.assign(
       this,
-      endpointMethods(this.request, this.constructor.endpoints),
+      endpointMethods(this.request, this.constructor.endpoints)
     )
   }
 }

@@ -1,7 +1,7 @@
-import EventSource from 'eventsource'
 import Base from './Api'
 import endpoints from './generated/endpoints'
 import middleware from './middleware'
+
 export default class Api extends Base {
   static endpoints = endpoints
   static middleware = middleware
